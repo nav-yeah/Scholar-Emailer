@@ -99,3 +99,33 @@ Return only the email. No commentary."""
     except Exception as e:
         print(f"[email] Generation failed: {e}")
         return "Email generation failed. Please try again."
+def score_relevance(interests, papers):
+    """Score 0-10 how well professor's papers match student's interests."""
+    if not papers:
+        return 0
+
+    paper_list = "\n".join([
+        f"- {p.get('title', '')}"
+        for p in papers[:5]
+    ])
+
+    prompt = f"""Student's research interests: {interests}
+
+Professor's papers:
+{paper_list}
+
+Rate how relevant this professor's research is to the student's interests.
+Reply with ONLY a single integer from 0 to 10.
+0 = completely unrelated, 10 = perfect match."""
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=5
+        )
+        score = int(response.choices[0].message.content.strip())
+        return max(0, min(10, score))
+    except Exception:
+        return 5  # neutral fallback

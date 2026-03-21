@@ -31,11 +31,7 @@ def _fetch_via_scholarly(scholar_url=None, author_name=None, university=None):
     """
     try:
         from scholarly import scholarly as sc
-
-        # Use free proxies to avoid Google blocking
-        pg = ProxyGenerator()
-        pg.FreeProxies()
-        sc.use_proxy(pg)
+       
         # Extract author ID from URL if provided
         if scholar_url:
             author_id = _extract_scholar_id(scholar_url)

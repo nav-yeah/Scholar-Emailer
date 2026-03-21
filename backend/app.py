@@ -16,7 +16,7 @@ from arxiv_search import (
     find_paper_on_arxiv_by_title
 )
 from pdf_reader import extract_paper_text
-from email_generator import rank_papers, generate_email
+from email_generator import rank_papers, generate_email, score_relevance
 from gscholar import get_scholar_profile
 
 app = Flask(__name__)
@@ -96,6 +96,7 @@ def generate():
     if not name or not interests:
         return jsonify({
             "error": "Professor name and research interests are required"
+
         }), 400
 
     professor = None
@@ -210,7 +211,16 @@ def generate():
             print(f"[app] Layer 4 success: {len(papers)} papers (verified)")
 
         elif not papers:
-            # Scholar failed AND we have nothing — last resort arXiv
+        # Only use arXiv as last resort if NO scholar URL was provided
+        # If URL was given and Scholar failed, tell user instead of wrong papers
+            if scholar_url:
+                return jsonify({
+                    "error": "scholar_blocked",
+                    "message": "Could not read that Google Scholar page right now. "
+                    "This happens occasionally. Please try again in a moment, "
+                    "or try without the URL — we'll search by name instead."
+            }), 503
+    
             print(f"[app] Scholar failed — last resort arXiv")
             arxiv_prof, arxiv_papers = find_professor_on_arxiv(name, university)
             if arxiv_papers:
@@ -247,6 +257,7 @@ def generate():
     # ── Rank + Generate ───────────────────────────────────────────────
     relevant_papers = rank_papers(interests, papers)
     email = generate_email(professor, relevant_papers, interests, degree)
+    relevance = score_relevance(interests, relevant_papers)
 
     return jsonify({
         "professor": professor,
@@ -254,14 +265,15 @@ def generate():
             {
                 "title": p.get("title"),
                 "year": p.get("year"),
-                "abstract": p.get("abstract", "")[:300],
+                "abstract": (p.get("abstract") or "")[:300],
                 "source": p.get("source", "unknown")
             }
             for p in relevant_papers
         ],
         "email": email,
         "source": professor.get("source", "unknown"),
-        "verified": verified
+        "verified": verified,
+        "relevance_score": relevance
     })
 
 
