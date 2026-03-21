@@ -33,10 +33,7 @@ function Spinner() {
       <p className="spinner-title">Finding the right papers…</p>
       <div className="spinner-steps">
         {STEPS.map((s, i) => (
-          <div
-            key={s}
-            className={`spinner-step${i === activeStep ? ' active' : ''}`}
-          >
+          <div key={s} className={`spinner-step${i === activeStep ? ' active' : ''}`}>
             {s}
           </div>
         ))}
@@ -89,155 +86,167 @@ function InputPage({ onResult }) {
 
   if (loading) return <Spinner />
 
-return (
-  <div className="input-page">
-    {/* Nav */}
-    <nav className="topnav">
-      <div className="logo">Scholar<span>-Emailer</span></div>
-      <div className="nav-tag">Research Email Generator</div>
-    </nav>
+  return (
+    <div className="input-page">
+      <nav className="topnav">
+        <div className="logo">Scholar<span>-Emailer</span></div>
+        <div className="nav-tag">Research Email Generator</div>
+      </nav>
 
-    <div className="home-body">
-      {/* Left — Hero + How it works */}
-      <div className="home-left">
-        <div className="hero">
-          <div className="hero-eyebrow">AI-powered · reads actual papers</div>
-          <h1 className="hero-title">
-            Cold emails<br />
-            professors <em>actually</em><br />
-            read.
-          </h1>
-          <p className="hero-sub">
-            Enter a professor's name. We find their papers, read the PDFs,
-            and write an email that references real research — not generic praise.
-          </p>
-        </div>
-
-        <div className="how-section">
-          <div className="how-label">How it works</div>
-          <div className="how-grid">
-            {[
-              { n: '01', title: 'Finds the professor', desc: 'Searches Semantic Scholar, arXiv, and Google Scholar across 4 lookup layers.' },
-              { n: '02', title: 'Reads their papers', desc: 'Downloads open-access PDFs and extracts the abstract and introduction.' },
-              { n: '03', title: 'Writes the email', desc: 'References a specific finding from their research — not just the paper title.' },
-            ].map(s => (
-              <div key={s.n} className="how-item">
-                <div className="how-num">{s.n}</div>
-                <div className="how-title">{s.title}</div>
-                <div className="how-desc">{s.desc}</div>
-              </div>
-            ))}
+      <div className="home-body">
+        {/* Left — Hero + How it works */}
+        <div className="home-left">
+          <div className="hero">
+            <div className="hero-eyebrow">AI-powered · reads actual papers</div>
+            <h1 className="hero-title">
+              Cold emails<br />
+              professors <em>actually</em><br />
+              read.
+            </h1>
+            <p className="hero-sub">
+              Enter a professor's name. We find their papers, read the PDFs,
+              and write an email that references real research — not generic praise.
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Right — Form */}
-      <div className="home-right">
-        <div className="form-section">
-          <div className="form-card">
-            <div className="form-row">
-              <div className="field">
-                <div className="field-label">
-                  Professor name <span className="req">*</span>
+          <div className="how-section">
+            <div className="how-label">How it works</div>
+            <div className="how-grid">
+              {[
+                { n: '01', title: 'Finds the professor', desc: 'Searches Semantic Scholar, arXiv, and Google Scholar across 4 lookup layers.' },
+                { n: '02', title: 'Reads their papers', desc: 'Downloads open-access PDFs and extracts the abstract and introduction.' },
+                { n: '03', title: 'Writes the email', desc: 'References a specific finding from their research — not just the paper title.' },
+              ].map(s => (
+                <div key={s.n} className="how-item">
+                  <div className="how-num">{s.n}</div>
+                  <div className="how-title">{s.title}</div>
+                  <div className="how-desc">{s.desc}</div>
                 </div>
-                <input
-                  placeholder="e.g. Yoshua Bengio"
-                  value={form.professor_name}
-                  onChange={set('professor_name')}
-                  onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                />
-              </div>
-              <div className="field">
-                <div className="field-label">University</div>
-                <input
-                  placeholder="e.g. University of Montreal"
-                  value={form.university}
-                  onChange={set('university')}
-                />
-              </div>
-            </div>
-
-            <div className="form-row single">
-              <div className="field">
-                <div className="field-label">
-                  Research interests <span className="req">*</span>
-                </div>
-                <textarea
-                  placeholder="e.g. I'm working on applying transformer architectures to protein structure prediction..."
-                  value={form.interests}
-                  onChange={set('interests')}
-                  rows={4}
-                />
-              </div>
-            </div>
-
-            <div className="degree-row">
-              {DEGREES.map(d => (
-                <button
-                  key={d}
-                  className={`degree-btn${form.degree === d ? ' active' : ''}`}
-                  onClick={() => setForm(f => ({ ...f, degree: d }))}
-                >
-                  {d}
-                </button>
               ))}
             </div>
+          </div>
+        </div>
 
-            <button
-              className={`advanced-toggle${showAdvanced ? ' open' : ''}`}
-              onClick={() => setShowAdvanced(v => !v)}
-            >
-              <span className="arrow">▼</span>
-              Advanced options
-              <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                — paper title anchor · Google Scholar URL
-              </span>
-            </button>
+        {/* Right — Form */}
+        <div className="home-right">
+          <div className="form-section">
+            <div className="form-card">
 
-            {showAdvanced && (
-              <div className="advanced-panel">
-                <div className="form-row">
-                  <div className="field">
-                    <div className="field-label">
-                      Known paper title <span className="opt">optional</span>
-                    </div>
-                    <input
-                      placeholder="e.g. Attention is All You Need"
-                      value={form.known_paper}
-                      onChange={set('known_paper')}
-                    />
+              {/* Professor name — full width */}
+              <div className="form-row single">
+                <div className="field">
+                  <div className="field-label">
+                    Professor name <span className="req">*</span>
                   </div>
-                  <div className="field">
-                    <div className="field-label">
-                      Google Scholar URL <span className="opt">optional</span>
-                    </div>
-                    <input
-                      placeholder="https://scholar.google.com/citations?user=..."
-                      value={form.scholar_url}
-                      onChange={set('scholar_url')}
-                    />
-                  </div>
+                  <input
+                    placeholder="e.g. Yoshua Bengio"
+                    value={form.professor_name}
+                    onChange={set('professor_name')}
+                    onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                  />
                 </div>
               </div>
-            )}
 
-            {error && <div className="error-msg">{error}</div>}
+              {/* University — full width */}
+              <div className="form-row single">
+                <div className="field">
+                  <div className="field-label">University</div>
+                  <input
+                    placeholder="e.g. University of Montreal, IIT Bombay"
+                    value={form.university}
+                    onChange={set('university')}
+                  />
+                </div>
+              </div>
 
-            <div className="form-footer">
-              <p className="submit-hint">
-                Takes 15–30 seconds.<br />We actually read their papers.
-              </p>
-              <button className="submit-btn" onClick={handleSubmit}>
-                Generate email →
+              {/* Research interests — full width */}
+              <div className="form-row single">
+                <div className="field">
+                  <div className="field-label">
+                    Research interests <span className="req">*</span>
+                  </div>
+                  <textarea
+                    placeholder="e.g. I'm working on applying transformer architectures to protein structure prediction..."
+                    value={form.interests}
+                    onChange={set('interests')}
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Degree */}
+              <div className="degree-row">
+                {DEGREES.map(d => (
+                  <button
+                    key={d}
+                    className={`degree-btn${form.degree === d ? ' active' : ''}`}
+                    onClick={() => setForm(f => ({ ...f, degree: d }))}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+
+              {/* Advanced toggle */}
+              <button
+                className={`advanced-toggle${showAdvanced ? ' open' : ''}`}
+                onClick={() => setShowAdvanced(v => !v)}
+              >
+                <span className="arrow">▼</span>
+                Advanced options
+                <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                  — paper title anchor · Google Scholar URL
+                </span>
               </button>
+
+              {showAdvanced && (
+                <div className="advanced-panel">
+                  <div className="form-row single">
+                    <div className="field">
+                      <div className="field-label">
+                        Known paper title <span className="opt">optional</span>
+                      </div>
+                      <input
+                        placeholder="e.g. Attention is All You Need"
+                        value={form.known_paper}
+                        onChange={set('known_paper')}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-row single">
+                    <div className="field">
+                      <div className="field-label">
+                        Google Scholar URL <span className="opt">optional</span>
+                      </div>
+                      <input
+                        placeholder="https://scholar.google.com/citations?user=..."
+                        value={form.scholar_url}
+                        onChange={set('scholar_url')}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {error && <div className="error-msg">{error}</div>}
+
+              <div className="form-footer">
+                <p className="submit-hint">
+                  Takes 15–30 seconds.<br />We actually read their papers.
+                </p>
+                <button className="submit-btn" onClick={handleSubmit}>
+                  Generate email →
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-)
+  )
 }
+
 // ─── Results Page ─────────────────────────────────────────────────────────────
 function ResultsPage({ result, form, onBack, onRegenerate }) {
   const [copied, setCopied] = useState(false)
@@ -291,7 +300,9 @@ function ResultsPage({ result, form, onBack, onRegenerate }) {
 
       {/* Top bar */}
       <div className="results-topbar">
-        <div className="logo" style={{fontSize: 16}}>Scholar<span style={{color:'var(--amber)'}}>-Emailer</span></div>
+        <div className="logo" style={{ fontSize: 20 }}>
+          Scholar<span style={{ color: 'var(--amber)' }}>-Emailer</span>
+        </div>
         <button className="back-btn" onClick={onBack}>← Back</button>
         <div className="topbar-right">
           <span className={`badge ${verified ? 'verified' : 'unverified'}`}>
@@ -367,13 +378,15 @@ function ResultsPage({ result, form, onBack, onRegenerate }) {
             </div>
           </div>
 
-          <div className="email-body">
-          {body.split('\n').map((line, i) =>
-            line.trim() === ''
-              ? <br key={i} />
-              : <p key={i} style={{ marginBottom: '0.4em' }}>{line}</p>
-          )}
-          <span className="cursor" />
+          <div className="email-body-wrap">
+            <div className="email-body">
+              {body.split('\n').map((line, i) =>
+                line.trim() === ''
+                  ? <br key={i} />
+                  : <p key={i} style={{ marginBottom: '0.4em' }}>{line}</p>
+              )}
+              <span className="cursor" />
+            </div>
           </div>
 
           {!verified && (
@@ -386,17 +399,19 @@ function ResultsPage({ result, form, onBack, onRegenerate }) {
             </div>
           )}
 
-          {relevance_score !== undefined &&(
-        <div className={`notice ${relevance_score >= 7 ? 'verified-notice' : relevance_score >= 5 ? 'warn' : 'relevance'}`}>
-        <span className="notice-icon">{relevance_score >= 7 ? '✓' : relevance_score >= 5 ? '~' : '↯'}</span>
-        <div className="notice-content">
-          <div className="notice-title">
-            Relevance — {relevance_score}/10 · {relevance_score >= 7 ? 'Good match' : relevance_score >= 5 ? 'Partial match' : 'Low match'}
-          </div>
-          {relevance_score < 6 && "This professor's research doesn't closely match your interests. The email may feel like a stretch."}
-        </div>
-      </div>
-       )}
+          {relevance_score !== undefined && (
+            <div className={`notice ${relevance_score >= 7 ? 'verified-notice' : relevance_score >= 5 ? 'warn' : 'relevance'}`}>
+              <span className="notice-icon">
+                {relevance_score >= 7 ? '✓' : relevance_score >= 5 ? '~' : '↯'}
+              </span>
+              <div className="notice-content">
+                <div className="notice-title">
+                  Relevance — {relevance_score}/10 · {relevance_score >= 7 ? 'Good match' : relevance_score >= 5 ? 'Partial match' : 'Low match'}
+                </div>
+                {relevance_score < 6 && "This professor's research doesn't closely match your interests. The email may feel like a stretch."}
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

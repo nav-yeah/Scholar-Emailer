@@ -20,7 +20,7 @@
   --radius-lg: 8px;
 }
 
-html { font-size: 16px; scroll-behavior: smooth; }
+html { font-size: 15px; scroll-behavior: smooth; }
 
 body {
   font-family: 'DM Mono', 'Courier New', monospace;
@@ -95,7 +95,7 @@ body {
 }
 
 .home-right {
-  padding: 32px 48px;
+  padding: 32px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -106,21 +106,22 @@ body {
 .nav-tag { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border); padding: 4px 10px; border-radius: 2px; }
 
 .hero {
-  padding: 72px 40px 56px;
+  padding: 16px 40px 20px;
   animation: fade-up 0.5s ease 0.1s both;
 }
 .hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--amber); }
 .hero-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(42px, 7vw, 78px); font-weight: 500;
+  font-size: clamp(32px, 3vw, 52px);
   line-height: 1.0; letter-spacing: -0.02em; color: var(--text); margin-bottom: 24px;
 }
 .hero-title em { font-style: italic; color: var(--amber); }
-.hero-sub { font-size: 14px; color: var(--text-soft); max-width: 460px; line-height: 1.8; letter-spacing: 0.02em; }
+.hero-sub { font-size: 16px; color: var(--text-soft); max-width: 460px; line-height: 1.8; letter-spacing: 0.02em; }
 
 /* Form */
 .form-section {
-  padding: 0 40px 80px;
+  padding: 0;
+  width: 100%;
   animation: fade-up 0.5s ease 0.2s both;
 }
 .form-card { border: 2px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
@@ -196,7 +197,7 @@ body {
 
 /* How it works */
 .how-section {
-  padding: 60px 40px 80px;
+  padding: 24px 40px 32px;
   border-top: 1px solid var(--border);
   max-width: 800px;
   margin: 0 auto;
@@ -208,7 +209,7 @@ body {
 .how-item { background: var(--bg); padding: 28px 24px; border: 1px solid var(--border-light); }
 .how-num { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 16px; }
 .how-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: 0.03em; }
-.how-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; letter-spacing: 0.02em; }
+.how-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; letter-spacing: 0.02em; }
 
 /* Results */
 .results-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); animation: fade-up 0.3s ease both; }
@@ -250,9 +251,9 @@ body {
 .paper-item { padding: 16px; border: 2px solid var(--border-light); border-radius: var(--radius-lg); margin-bottom: 12px; background: var(--bg-2); }
 .paper-item:last-child { margin-bottom: 0; }
 .paper-num { font-size: 10px; color: var(--amber); letter-spacing: 0.1em; margin-bottom: 6px; }
-.paper-title { font-size: 15px; color: var(--text); line-height: 1.5; margin-bottom: 6px; font-weight: 600; }
+.paper-title { font-size: 17px; color: var(--text); line-height: 1.5; margin-bottom: 6px; font-weight: 600; }
 .paper-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: capitalize; }
-.paper-abstract { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+.paper-abstract { font-size: 14px; color: var(--text-soft); line-height: 1.6; }
 
 /* Email panel */
 .right-panel { padding: 32px 40px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
@@ -281,7 +282,7 @@ body {
 .btn-primary.copied { background: var(--green); border-color: var(--green); }
 
 .email-body-wrap { background: var(--bg-2); border: 2px solid var(--border-light); border-radius: var(--radius-lg); padding: 32px; flex: 1; }
-.email-body { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text); line-height: 1.9; letter-spacing: 0.01em; }
+.email-body { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--text); line-height: 1.9; letter-spacing: 0.01em; }
 .cursor { display: inline-block; width: 2px; height: 14px; background: var(--amber); margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
 
 /* Notices */
@@ -301,9 +302,9 @@ body {
 /* Mobile */
 @media (max-width: 768px) {
   .topnav { padding: 16px 20px; }
-  .hero {padding: 24px 40px 32px;}
+  .hero { padding: 8px 40px 12px;}
   .form-section { padding: 0 20px 60px; }
-  .how-section { padding: 40px 20px 60px; }
+  .how-section {padding: 16px 40px 20px;}
   .form-row { grid-template-columns: 1fr; }
   .field { border-right: none; border-bottom: 1px solid var(--border); }
   .field:last-child { border-bottom: none; }
@@ -318,7 +319,9 @@ body {
 }
 
 @media (max-width: 480px) {
-  .hero-title { font-size: 36px; }
+  .hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 4.5vw, 52px);}
   .form-footer { flex-direction: column; align-items: stretch; }
   .submit-btn { width: 100%; justify-content: center; }
 }
@@ -329,9 +332,13 @@ body {
   .home-left {
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding: 40px 20px;
+    padding: 2vh 48px;
   }
   .home-right {
-    padding: 32px 20px;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 48px;
   }
 }
