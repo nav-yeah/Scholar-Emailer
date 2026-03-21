@@ -1,0 +1,8 @@
+{
+  "name": "scholar-emailer",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd frontend-web && npm install && npx vite build",
+    "dev": "cd frontend-web && npm run dev"
+  }
+}
