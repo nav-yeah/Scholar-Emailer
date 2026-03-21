@@ -52,17 +52,33 @@ Nothing else."""
         return papers[:2]
 
 
+import random
+
+OPENERS = [
+    "Start with what specifically caught the student's attention in the paper — a method, a result, a dataset choice. Not the title.",
+    "Start with what the student is building and why they hit a wall that this professor's work addresses.",
+    "Start with a specific question the student has about the professor's methodology.",
+    "Start by connecting one specific finding from the paper to something the student observed in their own work.",
+]
+
+TONES = [
+    "Direct and confident. No hedging. The student knows what they want.",
+    "Curious and specific. The student genuinely wants to understand the research better.",
+    "Collaborative. The student has something to offer too, not just asking for help.",
+]
+
 def generate_email(professor, papers, interests, degree):
-    """Generate a personalized cold email."""
     papers_text = ""
     for i, paper in enumerate(papers[:3]):
         content = paper.get("text") or paper.get("abstract") or ""
         papers_text += f"""
 Paper {i+1}: {paper.get('title', 'Untitled')} ({paper.get('year', 'N/A')})
-{content[:500]}
+{content[:600]}
 """
 
     affiliation = ", ".join(professor.get("affiliations", [])) or "your institution"
+    opener_style = random.choice(OPENERS)
+    tone = random.choice(TONES)
 
     prompt = f"""You are helping a {degree} student write a cold email to a professor.
 
@@ -72,33 +88,45 @@ Student's research interests: {interests}
 Professor's most relevant papers:
 {papers_text}
 
-Write a cold email that:
-- Is under 150 words
-- References a specific finding or method from one of their papers — not just the title
-- Explains what the student is working on and why it connects to the professor's work
-- Ends with a specific ask: a 15-minute call OR asking if they are taking students
-- Does NOT use phrases like "I am deeply inspired", "groundbreaking", "I came across your work"
-- Sounds like a real person wrote it
+Writing style for this email:
+- Opener approach: {opener_style}
+- Tone: {tone}
+
+Rules:
+- 250 to 300 words. Not shorter, not longer.
+- Reference a SPECIFIC finding, number, method, or dataset from one paper — not just the title
+- One sentence max about the student's own work
+- End with ONE specific ask — either a 15-minute call OR whether they are taking students for {degree}
+- No "I came across your work", "deeply inspired", "groundbreaking", "I hope this email finds you well"
+- No hollow flattery of any kind
+- Write the student's name placeholder as [Your Name]
+- Sound like a {degree} student wrote it at 11pm, not a PR person
 
 Format:
 Subject: [subject line]
 
-[email body]
+Dear Professor [Last Name],
 
-Return only the email. No commentary."""
+[2-3 paragraphs with blank lines between them]
+
+Best,
+[Your Name]
+
+Important: Each paragraph must be separated by a blank line. The sign-off "Best," and "[Your Name]" must be on separate lines.
+Return only the email. Nothing else."""
 
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=400
+            temperature=0.85,  # higher = more varied
+            max_tokens=500
         )
         return response.choices[0].message.content.strip()
-
     except Exception as e:
         print(f"[email] Generation failed: {e}")
         return "Email generation failed. Please try again."
+    
 def score_relevance(interests, papers):
     """Score 0-10 how well professor's papers match student's interests."""
     if not papers:
@@ -115,8 +143,8 @@ Professor's papers:
 {paper_list}
 
 Rate how relevant this professor's research is to the student's interests.
-Reply with ONLY a single integer from 0 to 10.
-0 = completely unrelated, 10 = perfect match."""
+Reply with ONLY a single integer from 0 to 10. Nothing else. No explanation.
+0 = completely unrelated fields, 10 = perfect match."""
 
     try:
         response = client.chat.completions.create(
@@ -125,7 +153,11 @@ Reply with ONLY a single integer from 0 to 10.
             temperature=0,
             max_tokens=5
         )
-        score = int(response.choices[0].message.content.strip())
-        return max(0, min(10, score))
+        raw = response.choices[0].message.content.strip()
+        import re
+        numbers = re.findall(r'\d+', raw)
+        if numbers:
+            return max(0, min(10, int(numbers[0])))
+        return 5
     except Exception:
-        return 5  # neutral fallback
+        return 5
