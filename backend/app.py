@@ -20,7 +20,7 @@ from email_generator import rank_papers, generate_email, score_relevance
 from gscholar import get_scholar_profile
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["*"])
 
 
 def enrich_papers_with_full_text(papers):
