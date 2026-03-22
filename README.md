@@ -1,117 +1,216 @@
 # Scholar-Emailer
-Scholar-Emailer
+
 Cold emails professors actually read.
-A full-stack tool that helps students write personalized cold emails to professors for research internships and graduate admissions. Instead of generic templates, it reads actual research papers and references specific findings.
-Live: https://scholar-emailer.vercel.app
+
+Scholar-Emailer is a full-stack tool that helps students write highly personalized cold emails for research internships and graduate admissions. Instead of generic templates, it analyzes real research papers and references specific findings from them.
+
+Live Demo: https://scholar-emailer.vercel.app
+
 ---
-What it does
-You enter a professor's name, university, and your research interests
-It finds their papers across multiple academic databases
-It downloads the paper PDFs and reads the first page
-It generates a personalized email referencing real research, not just paper titles
+
+## What It Does
+
+Input:
+- Professor name
+- University (optional but recommended)
+- Your research interests
+
+Output:
+- A 120–180 word personalized email that:
+  - References actual research findings
+  - Connects them to your interests
+  - Includes a clear ask
+
 ---
-Why it is different from ChatGPT
-ChatGPT cold email:
-> I am deeply inspired by your groundbreaking work in AI...
+
+## Why Is It Different?
+
+Typical AI-generated email:
+"I am deeply inspired by your groundbreaking work in AI..."
+
 Scholar-Emailer:
-> Your finding in [paper] that [specific method] achieved [specific result] connects directly to what I am working on...
-The difference is real paper content extracted from the actual PDF.
+"Your finding in [paper] that [method] achieved [result] aligns closely with my work on..."
+
+- Uses real paper content (PDFs)
+- Avoids generic flattery
+- Produces credible, research-backed emails
+
 ---
-Architecture
-4-Layer Professor Lookup Pipeline
-Layer 1 — Paper Title Anchor
-Most accurate layer. User provides a paper title they know the professor wrote.
-The system searches Semantic Scholar by that title, finds the paper, identifies the author,
-and pulls all their work. A paper title uniquely identifies a professor even if their name is common.
-Layer 2 — Semantic Scholar by Name
-Searches the Semantic Scholar author database by name and university.
-Candidates are scored by name match, affiliation overlap, and paper count.
-Best source for international and CS/ML professors.
-Layer 3 — arXiv by Name
-Fallback for professors not on Semantic Scholar.
-Only runs when no university is provided — with a university and a common name,
-arXiv results are too ambiguous to trust.
-Layer 4 — Google Scholar
-Catches everyone else including professors at smaller Indian colleges.
-Uses the scholarly library in development and SerpAPI in production.
-Paper titles from Scholar are then enriched using Semantic Scholar and arXiv for full text.
-How paper text is retrieved
-For each paper found, the system tries in order:
-Semantic Scholar provides a URL to the open-access PDF for papers that are freely available
-The PDF is downloaded using the requests library
-pdfplumber opens the downloaded file and extracts text from the first page
-If the PDF is paywalled or unavailable, the abstract is used instead
-Not all papers are open-access. Paywalled papers fall back to the abstract,
-which reduces email depth but keeps the tool functional.
-Email generation
-The LLM (llama-3.1-8b) first ranks the professor's papers by relevance to the student's interests.
-The top papers are passed to a larger model (llama-3.3-70b) which generates the email.
-The prompt enforces:
-120 to 180 words
-Reference to a specific finding, not just the paper title
-One sentence about the student's own work
-A specific ask at the end
-No generic flattery phrases
-A relevance score from 0 to 10 is shown to the user so they know how well the professor's
-work actually matches their interests before sending.
+
+## Architecture
+
+### 4-Layer Professor Lookup Pipeline
+
+#### 1. Paper Title Anchor (Most Accurate)
+- User provides a known paper title
+- Searches Semantic Scholar
+- Identifies the exact author
+- Retrieves all associated papers
+
+#### 2. Semantic Scholar by Name
+- Matches:
+  - Name similarity
+  - University affiliation
+  - Paper count
+- Best for CS/ML and international professors
+
+#### 3. arXiv Fallback
+- Used when no university is provided
+- Avoids ambiguity when names are common
+
+#### 4. Google Scholar
+- Covers Indian colleges and lesser-known institutions
+- Uses:
+  - scholarly (development)
+  - SerpAPI (production)
+
 ---
-Tech stack
-Component	Technology
-Frontend	React, Vite
-Backend	Python, Flask
-LLM	Groq — llama-3.3-70b-versatile
-Paper data	Semantic Scholar API
-PDF parsing	pdfplumber
-Google Scholar	scholarly (development), SerpAPI (production)
-Frontend deploy	Vercel
-Backend deploy	Render
+
+## Paper Text Retrieval
+
+For each paper:
+
+1. Try open-access PDF via Semantic Scholar  
+2. Download using requests  
+3. Extract text using pdfplumber (first page)  
+4. If unavailable, fallback to abstract  
+
+Note: Paywalled papers reduce email depth.
+
 ---
-Running locally
-Backend setup
+
+## Email Generation
+
+### Step 1: Relevance Ranking
+- Model: llama-3.1-8b
+- Ranks papers based on user interests
+
+### Step 2: Email Generation
+- Model: llama-3.3-70b
+- Constraints:
+  - 120–180 words
+  - Must reference specific findings
+  - Include user’s work
+  - End with a clear ask
+  - No generic praise
+
+Output:
+- Email
+- Relevance score (0–10)
+
+---
+
+## Tech Stack
+
+| Component        | Technology            |
+|-----------------|----------------------|
+| Frontend        | React, Vite          |
+| Backend         | Python, Flask        |
+| LLM             | Groq (LLaMA 3.3 70B) |
+| Paper Data      | Semantic Scholar API |
+| PDF Parsing     | pdfplumber           |
+| Scholar Access  | scholarly, SerpAPI   |
+| Frontend Deploy | Vercel               |
+| Backend Deploy  | Render               |
+
+---
+
+## Running Locally
+
+### Backend Setup
+
 ```bash
 cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 ```
-Create `backend/.env`:
+
+Create backend/.env:
+
 ```
 GROQ_API_KEY=your_key
 S2_API_KEY=your_key
 SERPAPI_KEY=your_key
 ENVIRONMENT=development
 ```
+
+Run backend:
+
 ```bash
 python app.py
 ```
-Frontend setup
+
+---
+
+### Frontend Setup
+
 ```bash
 cd frontend-web
 npm install
 npm run dev
 ```
+
 ---
-Environment variables
-Backend (Render)
-Variable	Description
-GROQ_API_KEY	Groq API key for LLM inference
-S2_API_KEY	Semantic Scholar API key
-SERPAPI_KEY	SerpAPI key for Google Scholar in production
-ENVIRONMENT	development or production
-Frontend (Vercel)
-Variable	Description
-VITE_API_URL	Full URL of your Render backend
+
+## Environment Variables
+
+### Backend (Render)
+
+| Variable        | Description                          |
+|----------------|--------------------------------------|
+| GROQ_API_KEY   | LLM inference key                    |
+| S2_API_KEY     | Semantic Scholar API key             |
+| SERPAPI_KEY    | Google Scholar scraping (production) |
+| ENVIRONMENT    | development or production            |
+
 ---
-Professor coverage
-Institution type	Coverage	Primary source
-IIT, IISc, TIFR	Good	Semantic Scholar
-MIT, Stanford, CMU	Good	Semantic Scholar
-NIT, BITS	Partial	arXiv, Google Scholar
-Any professor with a Google Scholar profile	Full	Scholar URL input
+
+### Frontend (Vercel)
+
+| Variable        | Description                   |
+|----------------|-------------------------------|
+| VITE_API_URL   | Backend URL (Render endpoint) |
+
 ---
-Known limitations
-Render free tier spins down after 15 minutes of inactivity. First request after inactivity takes around 60 seconds while the server wakes up.
-Paywalled papers fall back to the abstract, which reduces the specificity of the generated email.
-Google Scholar scraping via the scholarly library is occasionally blocked in production. SerpAPI is used as the reliable alternative.
-Common names without a university provided may match the wrong professor via arXiv.
+
+## Professor Coverage
+
+| Institution Type                | Coverage | Primary Source   |
+|--------------------------------|----------|------------------|
+| IIT, IISc, TIFR               | Good     | Semantic Scholar |
+| MIT, Stanford, CMU            | Good     | Semantic Scholar |
+| NIT, BITS                     | Partial  | arXiv, Scholar   |
+| Any Scholar profile available | Full     | Google Scholar   |
+
 ---
+
+## Known Limitations
+
+- Render free tier sleeps after 15 minutes of inactivity  
+- First request may take around 60 seconds  
+- Paywalled papers fall back to abstract  
+- Google Scholar scraping may be blocked in development  
+- Common names without university may match the wrong professor  
+
+---
+
+## Future Improvements
+
+- Better disambiguation for common names  
+- Multi-page PDF parsing  
+- UI for editing generated emails  
+- Caching frequent queries  
+- Improved ranking model  
+
+---
+
+## Contributing
+
+Pull requests are welcome. For major changes, open an issue first.
+
+---
+
+## License
+
+MIT License
