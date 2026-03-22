@@ -1,7 +1,6 @@
 import os
 import time
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,7 +19,6 @@ from email_generator import rank_papers, generate_email, score_relevance
 from gscholar import get_scholar_profile
 
 app = Flask(__name__)
-CORS(app)
 
 @app.after_request
 def after_request(response):
@@ -28,6 +26,10 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     return response
+
+@app.route("/generate", methods=["OPTIONS"])
+def generate_options():
+    return jsonify({}), 200
 
 def enrich_papers_with_full_text(papers):
     """
