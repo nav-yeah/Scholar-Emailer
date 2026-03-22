@@ -94,7 +94,7 @@ Note: Paywalled papers reduce email depth.
 ### Step 2: Email Generation
 - Model: llama-3.3-70b
 - Constraints:
-  - 120–180 words
+  - 200–220 words
   - Must reference specific findings
   - Include user’s work
   - End with a clear ask
