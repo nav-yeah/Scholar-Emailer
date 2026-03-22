@@ -16,7 +16,7 @@ def find_professor_on_arxiv(name, university):
 
     # arXiv author search
     query = urllib.parse.quote(f"au:{name}")
-    url = f"http://export.arxiv.org/api/query?search_query={query}&max_results=15&sortBy=submittedDate"
+    url = f"http://export.arxiv.org/api/query?search_query={query}&max_results=5&sortBy=submittedDate"
 
     try:
         response = requests.get(url, timeout=15)

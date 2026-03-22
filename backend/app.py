@@ -150,13 +150,16 @@ def generate():
         print(f"[app] Layer 3: arXiv (no university — proceeding unverified)")
         arxiv_prof, arxiv_papers = find_professor_on_arxiv(name, university)
         if arxiv_papers:
-            for p in arxiv_papers:
+            for p in arxiv_papers[:3]:  # Only extract PDFs for top 3
                 pdf_url = p.get("openAccessPdf", {}).get("url")
                 if pdf_url:
                     full_text = get_arxiv_pdf_text(pdf_url)
                     if full_text:
                         p["text"] = full_text
                 time.sleep(0.2)
+            # Rest just use abstracts
+            for p in arxiv_papers[3:]:
+                p["text"] = p.get("abstract") or ""
             professor = arxiv_prof
             papers = arxiv_papers
             verified = False
