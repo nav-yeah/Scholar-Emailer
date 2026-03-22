@@ -8,6 +8,12 @@ Live Demo: https://scholar-emailer.vercel.app
 
 ---
 
+## Why Did I Build This?
+
+While applying for research internships, I had to write cold emails to multiple professors. Going through each professor’s papers to personalize emails was time-consuming and tedious, so I built Scholar-Emailer to automate the process using actual research content.
+
+---
+
 ## What It Does
 
 Input:
