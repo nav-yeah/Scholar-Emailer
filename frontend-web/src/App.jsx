@@ -31,6 +31,9 @@ function Spinner() {
         <div className="spinner-dot" />
       </div>
       <p className="spinner-title">Finding the right papers…</p>
+      <p style={{fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', maxWidth: 280, lineHeight: 1.6}}>
+        First request may take 60 seconds while the server wakes up.
+      </p>
       <div className="spinner-steps">
         {STEPS.map((s, i) => (
           <div key={s} className={`spinner-step${i === activeStep ? ' active' : ''}`}>
@@ -66,23 +69,28 @@ function InputPage({ onResult }) {
     setError('')
     setLoading(true)
     try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 180000) // 3 minutes
       const res = await fetch(`${API}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, degree: form.degree.toLowerCase() }),
+        signal: controller.signal
       })
+clearTimeout(timeout)
       const data = await res.json()
       if (!res.ok) {
         setError(data.message || data.error || 'Something went wrong. Try again.')
         return
       }
       onResult(data, form)
-    } catch {
-      setError('Could not reach the server. Is your backend running on port 5000?')
-    } finally {
-      setLoading(false)
-    }
-  }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+          setError('Request timed out. The server may be waking up — please try again.')
+        } else {
+          setError('Could not reach the server. Is your backend running on port 5000?')
+        }
+      }
 
   if (loading) return <Spinner />
 
@@ -279,11 +287,15 @@ function ResultsPage({ result, form, onBack, onRegenerate }) {
   async function handleRegenerate() {
     setRegenerating(true)
     try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 180000)
       const res = await fetch(`${API}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, degree: form.degree.toLowerCase() }),
+        signal: controller.signal
       })
+      clearTimeout(timeout)
       const data = await res.json()
       if (res.ok) onRegenerate(data)
     } catch (e) {
