@@ -20,11 +20,14 @@ from email_generator import rank_papers, generate_email, score_relevance
 from gscholar import get_scholar_profile
 
 app = Flask(__name__)
-CORS(app, 
-     origins=["*"],
-     methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type"])
+CORS(app)
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    return response
 
 def enrich_papers_with_full_text(papers):
     """
