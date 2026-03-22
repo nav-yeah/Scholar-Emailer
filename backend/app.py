@@ -1,6 +1,7 @@
 import os
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,44 +20,23 @@ from email_generator import rank_papers, generate_email, score_relevance
 from gscholar import get_scholar_profile
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    return response
-
-@app.route("/generate", methods=["OPTIONS"])
-def generate_options():
-    from flask import make_response
-    response = make_response()
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    return response, 200
 
 def enrich_papers_with_full_text(papers):
-    """
-    For each paper (usually from Google Scholar — title only),
-    try to get full text via S2 → arXiv → abstract fallback.
-    """
     enriched = []
     for paper in papers:
         title = paper.get("title", "")
 
-        # Already has usable text
         if paper.get("text") and len(paper.get("text", "")) > 300:
             enriched.append(paper)
             continue
 
-        # Has PDF link directly (S2 papers)
         if paper.get("openAccessPdf"):
             paper["text"] = extract_paper_text(paper)
             enriched.append(paper)
             continue
 
-        # Try S2 by title
         s2_paper = find_paper_by_title(title)
         if s2_paper:
             s2_paper["text"] = extract_paper_text(s2_paper)
@@ -66,7 +46,6 @@ def enrich_papers_with_full_text(papers):
             time.sleep(0.3)
             continue
 
-        # Try arXiv by title
         arxiv_text = find_paper_on_arxiv_by_title(title)
         if arxiv_text:
             paper["text"] = arxiv_text
@@ -74,7 +53,6 @@ def enrich_papers_with_full_text(papers):
             enriched.append(paper)
             continue
 
-        # Abstract fallback
         paper["text"] = paper.get("abstract") or ""
         print(f"[enrich] Abstract fallback: {title[:50]}")
         enriched.append(paper)
@@ -93,8 +71,15 @@ def health():
     })
 
 
-@app.route("/generate", methods=["POST"])
+@app.route("/generate", methods=["POST", "OPTIONS"])
 def generate():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        return response, 200
+
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -109,16 +94,13 @@ def generate():
     if not name or not interests:
         return jsonify({
             "error": "Professor name and research interests are required"
-
         }), 400
 
     professor = None
     papers    = []
-    verified  = False  # True only when we've confirmed the right person
+    verified  = False
 
     # ── Layer 1: Paper title anchor ───────────────────────────────────
-    # Most accurate — user gives us a paper title they know the prof wrote
-    # Only runs if: known_paper provided + S2 key exists
     if known_paper and not scholar_url and S2_API_KEY:
         print(f"[app] Layer 1: paper title anchor — {known_paper[:50]}")
         s2_paper = find_paper_by_title(known_paper)
@@ -152,7 +134,6 @@ def generate():
                         break
 
     # ── Layer 2: Semantic Scholar by name ─────────────────────────────
-    # Runs if: S2 key exists + Layer 1 didn't succeed
     if not papers and not scholar_url and S2_API_KEY:
         print(f"[app] Layer 2: Semantic Scholar name search")
         professor = find_professor(name, university)
@@ -165,9 +146,6 @@ def generate():
             print(f"[app] Layer 2 success: {len(papers)} papers")
 
     # ── Layer 3: arXiv by name ────────────────────────────────────────
-    # Only runs if: NO university provided + Layers 1&2 failed
-    # If university IS provided, arXiv is too ambiguous for common names
-    # — we go straight to Google Scholar for verification instead
     if not papers and not scholar_url and not university:
         print(f"[app] Layer 3: arXiv (no university — proceeding unverified)")
         arxiv_prof, arxiv_papers = find_professor_on_arxiv(name, university)
@@ -185,10 +163,6 @@ def generate():
             print(f"[app] Layer 3 success: {len(papers)} papers (unverified)")
 
     # ── Layer 4: Google Scholar ───────────────────────────────────────
-    # Runs when ANY of:
-    # (a) scholar_url provided directly by user
-    # (b) university given but still not verified (Layers 1&2 failed)
-    # (c) no papers found at all yet
     needs_scholar = (
         scholar_url or
         not papers or
@@ -224,16 +198,13 @@ def generate():
             print(f"[app] Layer 4 success: {len(papers)} papers (verified)")
 
         elif not papers:
-        # Only use arXiv as last resort if NO scholar URL was provided
-        # If URL was given and Scholar failed, tell user instead of wrong papers
             if scholar_url:
                 return jsonify({
                     "error": "scholar_blocked",
                     "message": "Could not read that Google Scholar page right now. "
-                    "This happens occasionally. Please try again in a moment, "
-                    "or try without the URL — we'll search by name instead."
-            }), 503
-    
+                               "Try again in a moment, or try without the URL."
+                }), 503
+
             print(f"[app] Scholar failed — last resort arXiv")
             arxiv_prof, arxiv_papers = find_professor_on_arxiv(name, university)
             if arxiv_papers:
@@ -260,7 +231,6 @@ def generate():
             )
         }), 404
 
-    # Fill in sparse professor details
     if professor:
         if not professor.get("name"):
             professor["name"] = name
