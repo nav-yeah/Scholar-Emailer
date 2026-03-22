@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 const DEGREES = ['Undergraduate', 'Masters', 'PhD']
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API = import.meta.env.VITE_API_URL || 'https://scholar-emailer.onrender.com'
 
 const STEPS = [
   'Searching Semantic Scholar',
