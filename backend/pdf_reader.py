@@ -1,6 +1,7 @@
 import requests
 import pdfplumber
 import io
+import gc
 
 import logging
 logging.getLogger("pdfplumber").setLevel(logging.ERROR)
@@ -24,10 +25,15 @@ def extract_paper_text(paper):
                     extracted = page.extract_text()
                     if extracted:
                         text += extracted + "\n"
+                    if len(text) > 2000:
+                        break
 
             if text.strip():
                 print(f"[pdf] Extracted: {paper.get('title', '')[:50]}")
+                gc.collect()
                 return text[:3000]
+
+            gc.collect()
 
         except Exception as e:
             print(f"[pdf] Failed: {e}")
