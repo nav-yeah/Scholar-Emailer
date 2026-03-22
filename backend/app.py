@@ -29,7 +29,12 @@ def after_request(response):
 
 @app.route("/generate", methods=["OPTIONS"])
 def generate_options():
-    return jsonify({}), 200
+    from flask import make_response
+    response = make_response()
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    return response, 200
 
 def enrich_papers_with_full_text(papers):
     """
