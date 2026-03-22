@@ -86,11 +86,14 @@ clearTimeout(timeout)
       onResult(data, form)
     } catch (err) {
       if (err.name === 'AbortError') {
-          setError('Request timed out. The server may be waking up — please try again.')
-        } else {
-          setError('Could not reach the server. Is your backend running on port 5000?')
-        }
+        setError('Request timed out. The server may be waking up — please try again.')
+      } else {
+        setError('Could not reach the server. Is your backend running on port 5000?')
       }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (loading) return <Spinner />
 
