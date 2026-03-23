@@ -14,7 +14,7 @@ While applying for research internships, I had to write cold emails to multiple 
 
 ---
 
-## What It Does
+## What Does It Do?
 
 Input:
 - Professor name
